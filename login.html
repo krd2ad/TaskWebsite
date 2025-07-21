@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login / Register</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f2f5;
+      padding: 2em;
+      max-width: 400px;
+      margin: auto;
+    }
+    h2 {
+      margin-bottom: 1em;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 0.75em;
+      margin-bottom: 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    button {
+      width: 100%;
+      padding: 0.75em;
+      background-color: #0055ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 1em;
+      font-size: 1em;
+    }
+    .toggle {
+      text-align: center;
+      margin-bottom: 1em;
+      font-size: 0.9em;
+      color: #333;
+    }
+    .toggle a {
+      color: #0055ff;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .message {
+      text-align: center;
+      font-size: 0.9em;
+      margin-bottom: 1em;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h2 id="formTitle">Login</h2>
+  <div class="message" id="messageBox"></div>
+
+  <form id="authForm">
+    <input type="email" id="email" placeholder="Email" autocomplete="email" required />
+    <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
+    <button type="submit" id="submitBtn">Login</button>
+  </form>
+
+  <div class="toggle" id="toggleText">
+    Don't have an account? <a onclick="toggleMode()">Register</a>
+  </div>
+
+  <script>
+    let isRegistering = false;
+
+    const form = document.getElementById('authForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const messageBox = document.getElementById('messageBox');
+    const formTitle = document.getElementById('formTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    const toggleText = document.getElementById('toggleText');
+
+    async function hashPassword(password) {
+      const msgUint8 = new TextEncoder().encode(password);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function showMessage(msg, success = false) {
+      messageBox.textContent = msg;
+      messageBox.style.color = success ? 'green' : 'red';
+    }
+
+    function toggleMode() {
+      isRegistering = !isRegistering;
+      formTitle.textContent = isRegistering ? 'Register' : 'Login';
+      submitBtn.textContent = isRegistering ? 'Register' : 'Login';
+      toggleText.innerHTML = isRegistering
+        ? 'Already have an account? <a onclick="toggleMode()">Login</a>'
+        : 'Don\'t have an account? <a onclick="toggleMode()">Register</a>';
+      showMessage('');
+      form.reset();
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password) {
+        return showMessage('Enter email and password');
+      }
+
+      if (password.length < 6) {
+        return showMessage('Password must be at least 6 characters');
+      }
+
+      const users = JSON.parse(localStorage.getItem('users') || '{}');
+      const hashedPassword = await hashPassword(password);
+
+      if (isRegistering) {
+        if (users[email]) {
+          return showMessage('User already exists');
+        }
+        users[email] = { password: hashedPassword, todos: [] };
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('currentUser', email);
+        showMessage('Registered successfully. Redirecting...', true);
+      } else {
+        if (!users[email] || users[email].password !== hashedPassword) {
+          return showMessage('Invalid login credentials');
+        }
+        localStorage.setItem('currentUser', email);
+        showMessage('Login successful. Redirecting...', true);
+      }
+
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1000);
+    };
+  </script>
+</body>
+</html>

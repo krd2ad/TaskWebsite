@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple To-Do Tracker</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f5f5;
+      color: #111;
+      margin: 2em auto;
+      max-width: 800px;
+      padding: 2em;
+    }
+    input, textarea, select {
+      width: 100%;
+      margin-top: 0.5em;
+      padding: 0.75em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 1em;
+      font-size: 1em;
+      background: white;
+      color: #111;
+    }
+    button {
+      margin: 0.5em 0.25em;
+      padding: 0.6em 1.2em;
+      font-size: 1em;
+      background-color: #0055ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .todo {
+      background-color: white;
+      border: 1px solid #ddd;
+      padding: 1em;
+      margin-top: 1em;
+      border-radius: 6px;
+    }
+    .completed {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>To-Do Tracker</h1>
+  <button onclick="window.location.href='settings.html'">Settings</button>
+  <button onclick="logout()">Sign Out</button>
+
+  <form onsubmit="event.preventDefault(); addTodo();">
+    <input id="taskInput" placeholder="New task" required />
+    <textarea id="noteInput" placeholder="Optional note"></textarea>
+    <input id="linkInput" placeholder="Related URL (optional)" />
+    <input type="date" id="dueDateInput" required />
+    <select id="priorityInput">
+      <option value="">--Priority--</option>
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+    <select id="tagInput">
+      <option value="">--Tag--</option>
+    </select>
+    <button type="submit">Add</button>
+  </form>
+
+  <button onclick="exportCSV()">Export CSV</button>
+  <input type="file" id="importCSVInput" accept=".csv" onchange="importCSV(event)" />
+
+  <div style="margin: 1em 0;">
+    <label for="priorityFilter">Filter by Priority:</label>
+    <select id="priorityFilter" onchange="renderTodos()">
+      <option value="">--All--</option>
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+
+    <label for="tagFilter" style="margin-left:1em;">Filter by Tag:</label>
+    <select id="tagFilter" onchange="renderTodos()">
+      <option value="">--All--</option>
+    </select>
+  </div>
+
+  <div id="todoList"></div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'login.html';
+    }
+
+    const currentUser = localStorage.getItem('currentUser');
+    const allUsers = JSON.parse(localStorage.getItem('users') || '{}');
+    if (!currentUser || !allUsers[currentUser]) {
+      window.location.href = 'login.html';
+    }
+
+    const todos = allUsers[currentUser].todos || [];
+    const tagSettings = JSON.parse(localStorage.getItem('tagSettings')) || {
+      Work: '#f39c12',
+      Personal: '#3498db',
+      Academic: '#2ecc71'
+    };
+
+    function saveTodos() {
+      allUsers[currentUser].todos = todos;
+      localStorage.setItem('users', JSON.stringify(allUsers));
+    }
+
+    function renderTodos() {
+      const container = document.getElementById('todoList');
+      container.innerHTML = '';
+
+      const priorityFilter = document.getElementById('priorityFilter')?.value || '';
+      const tagFilter = document.getElementById('tagFilter')?.value || '';
+
+      const filteredTodos = todos.filter(todo => {
+        return (!priorityFilter || todo.priority === priorityFilter) &&
+               (!tagFilter || todo.tag === tagFilter);
+      });
+
+      filteredTodos.forEach(todo => {
+        const card = document.createElement('div');
+        card.className = 'todo';
+        if (tagSettings[todo.tag]) card.style.borderLeft = `8px solid ${tagSettings[todo.tag]}`;
+
+        const title = document.createElement('div');
+        title.textContent = todo.task;
+        if (todo.completed) title.classList.add('completed');
+
+        const note = document.createElement('textarea');
+        note.value = todo.note;
+        note.onchange = e => {
+          todo.note = e.target.value;
+          todo.lastUpdated = new Date().toISOString();
+          saveTodos();
+        };
+
+        const link = document.createElement('input');
+        link.value = todo.link || '';
+        link.placeholder = 'Related URL';
+        link.onchange = e => {
+          todo.link = e.target.value;
+          todo.lastUpdated = new Date().toISOString();
+          saveTodos();
+        };
+
+        const dueDate = document.createElement('input');
+        dueDate.type = 'date';
+        dueDate.value = todo.dueDate;
+        dueDate.onchange = e => {
+          todo.dueDate = e.target.value;
+          todo.lastUpdated = new Date().toISOString();
+          saveTodos();
+          renderTodos();
+        };
+
+        const priority = document.createElement('select');
+        ['', 'High', 'Medium', 'Low'].forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p;
+          opt.text = p || '--Priority--';
+          if (todo.priority === p) opt.selected = true;
+          priority.appendChild(opt);
+        });
+        priority.onchange = e => {
+          todo.priority = e.target.value;
+          todo.lastUpdated = new Date().toISOString();
+          saveTodos();
+        };
+
+        const tag = document.createElement('select');
+        ['', ...Object.keys(tagSettings)].forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.text = t || '--Tag--';
+          if (todo.tag === t) opt.selected = true;
+          tag.appendChild(opt);
+        });
+        tag.onchange = e => {
+          todo.tag = e.target.value;
+          todo.lastUpdated = new Date().toISOString();
+          saveTodos();
+          renderTodos();
+        };
+
+        const completeBtn = document.createElement('button');
+        completeBtn.textContent = todo.completed ? 'Undo' : 'Complete';
+        completeBtn.onclick = () => {
+          todo.completed = !todo.completed;
+          saveTodos();
+          renderTodos();
+        };
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = () => {
+          const idx = todos.findIndex(t => t.id === todo.id);
+          if (idx !== -1) {
+            todos.splice(idx, 1);
+            saveTodos();
+            renderTodos();
+          }
+        };
+
+        card.append(title, note, link, dueDate, priority, tag, completeBtn, deleteBtn);
+        container.appendChild(card);
+      });
+    }
+
+    function populateTagOptions() {
+      const tagSelect = document.getElementById('tagInput');
+      const tagFilter = document.getElementById('tagFilter');
+      if (tagSelect) tagSelect.innerHTML = '<option value="">--Tag--</option>';
+      if (tagFilter) tagFilter.innerHTML = '<option value="">--All--</option>';
+      Object.keys(tagSettings).forEach(tag => {
+        const opt1 = document.createElement('option');
+        opt1.value = tag;
+        opt1.textContent = tag;
+        tagSelect?.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = tag;
+        opt2.textContent = tag;
+        tagFilter?.appendChild(opt2);
+      });
+    }
+
+    function addTodo() {
+      const task = document.getElementById('taskInput').value;
+      const note = document.getElementById('noteInput').value;
+      const link = document.getElementById('linkInput').value;
+      const priority = document.getElementById('priorityInput').value;
+      const tag = document.getElementById('tagInput').value;
+      const dueDate = document.getElementById('dueDateInput').value;
+      if (!task.trim() || !dueDate) return;
+
+      todos.push({
+        id: Date.now(),
+        task,
+        note,
+        link,
+        priority,
+        tag,
+        dueDate,
+        completed: false,
+        lastUpdated: new Date().toISOString()
+      });
+      saveTodos();
+      renderTodos();
+    }
+
+    function exportCSV() {
+      const headers = ['Task','Note','Link','DueDate','Priority','Tag','Completed'];
+      const rows = todos.map(t => [t.task, t.note, t.link, t.dueDate, t.priority, t.tag, t.completed]);
+      const csv = [headers, ...rows].map(row => row.map(item => `"${item || ''}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'todos.csv';
+      a.click();
+    }
+
+    function importCSV(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const lines = e.target.result.split('\n').filter(Boolean);
+        const [header, ...data] = lines;
+        if (!/^"Task","Note","Link","DueDate","Priority","Tag","Completed"$/.test(header.trim())) {
+          alert('Invalid CSV format');
+          return;
+        }
+        todos.length = 0;
+        data.forEach(line => {
+          const [task, note, link, dueDate, priority, tag, completed] = line.split(',').map(v => v.replace(/"/g, ''));
+          if (task && dueDate) {
+            todos.push({
+              id: Date.now() + Math.random(),
+              task, note, link, dueDate, priority, tag,
+              completed: completed === 'true',
+              lastUpdated: new Date().toISOString()
+            });
+          }
+        });
+        saveTodos();
+        renderTodos();
+      };
+      reader.readAsText(file);
+    }
+
+    populateTagOptions();
+    renderTodos();
+  </script>
+
+  <footer style="font-size: 0.75em; color: #666; text-align: center; margin-top: 2em;">
+    Designed by Kiernan DiMeglio via AI
+  </footer>
+</body>
+</html>
