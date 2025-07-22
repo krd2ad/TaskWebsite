@@ -2,140 +2,297 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login / Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple To-Do Tracker</title>
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f0f2f5;
+      background-color: #f5f5f5;
+      color: #111;
+      margin: 2em auto;
+      max-width: 800px;
       padding: 2em;
-      max-width: 400px;
-      margin: auto;
     }
-    h2 {
-      margin-bottom: 1em;
-      text-align: center;
-    }
-    input {
+    input, textarea, select {
       width: 100%;
+      margin-top: 0.5em;
       padding: 0.75em;
-      margin-bottom: 1em;
       border-radius: 6px;
       border: 1px solid #ccc;
+      margin-bottom: 1em;
       font-size: 1em;
+      background: white;
+      color: #111;
     }
     button {
-      width: 100%;
-      padding: 0.75em;
+      margin: 0.5em 0.25em;
+      padding: 0.6em 1.2em;
+      font-size: 1em;
       background-color: #0055ff;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 1em;
-      font-size: 1em;
     }
-    .toggle {
-      text-align: center;
-      margin-bottom: 1em;
-      font-size: 0.9em;
-      color: #333;
+    .todo {
+      background-color: white;
+      border: 1px solid #ddd;
+      padding: 1em;
+      margin-top: 1em;
+      border-radius: 6px;
     }
-    .toggle a {
-      color: #0055ff;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-    .message {
-      text-align: center;
-      font-size: 0.9em;
-      margin-bottom: 1em;
-      color: red;
+    .completed {
+      text-decoration: line-through;
+      opacity: 0.6;
     }
   </style>
 </head>
 <body>
-  <h2 id="formTitle">Login</h2>
-  <div class="message" id="messageBox"></div>
+  <h1>To-Do Tracker</h1>
+  <button onclick="window.location.href='settings.html'">Settings</button>
+  <button onclick="logout()">Sign Out</button>
 
-  <form id="authForm">
-    <input type="email" id="email" placeholder="Email" autocomplete="email" required />
-    <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
-    <button type="submit" id="submitBtn">Login</button>
+  <form onsubmit="event.preventDefault(); addTodo();">
+    <input id="taskInput" placeholder="New task" required />
+    <textarea id="noteInput" placeholder="Optional note"></textarea>
+    <input id="linkInput" placeholder="Related URL (optional)" />
+    <input type="date" id="dueDateInput" required />
+    <select id="priorityInput">
+      <option value="">--Priority--</option>
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+    <select id="tagInput">
+      <option value="">--Tag--</option>
+    </select>
+    <button type="submit">Add</button>
   </form>
 
-  <div class="toggle" id="toggleText">
-    Don't have an account? <a onclick="toggleMode()">Register</a>
+  <button onclick="exportCSV()">Export CSV</button>
+  <input type="file" id="importCSVInput" accept=".csv" onchange="importCSV(event)" />
+
+  <div style="margin: 1em 0;">
+    <label for="priorityFilter">Filter by Priority:</label>
+    <select id="priorityFilter" onchange="renderTodos()">
+      <option value="">--All--</option>
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+
+    <label for="tagFilter" style="margin-left:1em;">Filter by Tag:</label>
+    <select id="tagFilter" onchange="renderTodos()">
+      <option value="">--All--</option>
+    </select>
   </div>
 
-  <!-- Supabase JS SDK -->
+  <div id="todoList"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Initialize Supabase
     const supabase = supabase.createClient(
-      'https://upyhxhtasgfdelxnpupb.supabase.c',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+      'https://YOUR_PROJECT_URL.supabase.co',
+      'YOUR_ANON_KEY'
     );
 
-    let isRegistering = false;
-
-    const form = document.getElementById('authForm');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const messageBox = document.getElementById('messageBox');
-    const formTitle = document.getElementById('formTitle');
-    const submitBtn = document.getElementById('submitBtn');
-    const toggleText = document.getElementById('toggleText');
-
-    function showMessage(msg, success = false) {
-      messageBox.textContent = msg;
-      messageBox.style.color = success ? 'green' : 'red';
-    }
-
-    function toggleMode() {
-      isRegistering = !isRegistering;
-      formTitle.textContent = isRegistering ? 'Register' : 'Login';
-      submitBtn.textContent = isRegistering ? 'Register' : 'Login';
-      toggleText.innerHTML = isRegistering
-        ? 'Already have an account? <a onclick="toggleMode()">Login</a>'
-        : 'Don\'t have an account? <a onclick="toggleMode()">Register</a>';
-      showMessage('');
-      form.reset();
-    }
-
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-
-      if (!email || !password) {
-        return showMessage('Enter email and password');
-      }
-
-      if (password.length < 6) {
-        return showMessage('Password must be at least 6 characters');
-      }
-
-      try {
-        let result;
-        if (isRegistering) {
-          result = await supabase.auth.signUp({ email, password });
-          if (result.error) return showMessage(result.error.message);
-          showMessage('Registered successfully. Redirecting...', true);
-        } else {
-          result = await supabase.auth.signInWithPassword({ email, password });
-          if (result.error) return showMessage('Invalid login credentials');
-          showMessage('Login successful. Redirecting...', true);
-        }
-
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1000);
-      } catch (err) {
-        showMessage('Unexpected error. Please try again.');
-        console.error(err);
-      }
+    let todos = [];
+    let user = null;
+    let tagSettings = JSON.parse(localStorage.getItem('tagSettings')) || {
+      Work: '#f39c12',
+      Personal: '#3498db',
+      Academic: '#2ecc71'
     };
+
+    async function init() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      user = data.user;
+      await fetchTodos();
+      populateTagOptions();
+      renderTodos();
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
+    }
+
+    async function fetchTodos() {
+      const { data, error } = await supabase
+        .from('todos')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('due_date', { ascending: true });
+      todos = data || [];
+    }
+
+    async function addTodo() {
+      const task = document.getElementById('taskInput').value;
+      const note = document.getElementById('noteInput').value;
+      const link = document.getElementById('linkInput').value;
+      const priority = document.getElementById('priorityInput').value;
+      const tag = document.getElementById('tagInput').value;
+      const dueDate = document.getElementById('dueDateInput').value;
+
+      if (!task.trim() || !dueDate) return;
+
+      const { data, error } = await supabase.from('todos').insert([{
+        user_id: user.id,
+        task, note, link, priority, tag,
+        due_date: dueDate,
+        completed: false,
+        last_updated: new Date().toISOString()
+      }]).select();
+
+      if (!error) {
+        todos.push(...data);
+        renderTodos();
+        document.querySelector('form').reset();
+      }
+    }
+
+    async function updateTodo(todoId, updates) {
+      const { error } = await supabase.from('todos').update(updates).eq('id', todoId);
+      if (!error) await fetchTodos(), renderTodos();
+    }
+
+    async function deleteTodo(todoId) {
+      const { error } = await supabase.from('todos').delete().eq('id', todoId);
+      if (!error) await fetchTodos(), renderTodos();
+    }
+
+    function renderTodos() {
+      const container = document.getElementById('todoList');
+      container.innerHTML = '';
+
+      const priorityFilter = document.getElementById('priorityFilter').value || '';
+      const tagFilter = document.getElementById('tagFilter').value || '';
+
+      todos.filter(todo => {
+        return (!priorityFilter || todo.priority === priorityFilter) &&
+               (!tagFilter || todo.tag === tagFilter);
+      }).forEach(todo => {
+        const card = document.createElement('div');
+        card.className = 'todo';
+        if (tagSettings[todo.tag]) card.style.borderLeft = `8px solid ${tagSettings[todo.tag]}`;
+
+        const title = document.createElement('div');
+        title.textContent = todo.task;
+        if (todo.completed) title.classList.add('completed');
+
+        const note = document.createElement('textarea');
+        note.value = todo.note || '';
+        note.onchange = e => updateTodo(todo.id, { note: e.target.value });
+
+        const link = document.createElement('input');
+        link.value = todo.link || '';
+        link.placeholder = 'Related URL';
+        link.onchange = e => updateTodo(todo.id, { link: e.target.value });
+
+        const dueDate = document.createElement('input');
+        dueDate.type = 'date';
+        dueDate.value = todo.due_date;
+        dueDate.onchange = e => updateTodo(todo.id, { due_date: e.target.value });
+
+        const priority = document.createElement('select');
+        ['', 'High', 'Medium', 'Low'].forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p;
+          opt.text = p || '--Priority--';
+          if (todo.priority === p) opt.selected = true;
+          priority.appendChild(opt);
+        });
+        priority.onchange = e => updateTodo(todo.id, { priority: e.target.value });
+
+        const tag = document.createElement('select');
+        ['', ...Object.keys(tagSettings)].forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.text = t || '--Tag--';
+          if (todo.tag === t) opt.selected = true;
+          tag.appendChild(opt);
+        });
+        tag.onchange = e => updateTodo(todo.id, { tag: e.target.value });
+
+        const completeBtn = document.createElement('button');
+        completeBtn.textContent = todo.completed ? 'Undo' : 'Complete';
+        completeBtn.onclick = () => updateTodo(todo.id, { completed: !todo.completed });
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = () => deleteTodo(todo.id);
+
+        card.append(title, note, link, dueDate, priority, tag, completeBtn, deleteBtn);
+        container.appendChild(card);
+      });
+    }
+
+    function populateTagOptions() {
+      const tagSelect = document.getElementById('tagInput');
+      const tagFilter = document.getElementById('tagFilter');
+      if (tagSelect) tagSelect.innerHTML = '<option value="">--Tag--</option>';
+      if (tagFilter) tagFilter.innerHTML = '<option value="">--All--</option>';
+      Object.keys(tagSettings).forEach(tag => {
+        const opt1 = document.createElement('option');
+        opt1.value = tag;
+        opt1.textContent = tag;
+        tagSelect.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = tag;
+        opt2.textContent = tag;
+        tagFilter.appendChild(opt2);
+      });
+    }
+
+    function exportCSV() {
+      const headers = ['Task','Note','Link','DueDate','Priority','Tag','Completed'];
+      const rows = todos.map(t => [t.task, t.note, t.link, t.due_date, t.priority, t.tag, t.completed]);
+      const csv = [headers, ...rows].map(row => row.map(item => `"${item || ''}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'todos.csv';
+      a.click();
+    }
+
+    async function importCSV(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const lines = e.target.result.split('\n').filter(Boolean);
+        const [header, ...data] = lines;
+        if (!/^"Task","Note","Link","DueDate","Priority","Tag","Completed"$/.test(header.trim())) {
+          alert('Invalid CSV format');
+          return;
+        }
+        const inserts = data.map(line => {
+          const [task, note, link, due_date, priority, tag, completed] = line.split(',').map(v => v.replace(/"/g, ''));
+          return {
+            user_id: user.id,
+            task, note, link, due_date,
+            priority, tag,
+            completed: completed === 'true',
+            last_updated: new Date().toISOString()
+          };
+        });
+        await supabase.from('todos').insert(inserts);
+        await fetchTodos();
+        renderTodos();
+      };
+      reader.readAsText(file);
+    }
+
+    init();
   </script>
+
+  <footer style="font-size: 0.75em; color: #666; text-align: center; margin-top: 2em;">
+    Designed by Kiernan DiMeglio via AI
+  </footer>
 </body>
 </html>
