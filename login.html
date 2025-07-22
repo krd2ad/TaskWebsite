@@ -119,7 +119,9 @@
       try {
         let result;
         if (isRegistering) {
-          result = await supabase.auth.signUp({ email, password });
+          result = await supabase.auth.signUp({
+            credentials: { email, password }
+          });
           if (result.error) return showMessage(result.error.message);
           showMessage('Registered successfully. Redirecting...', true);
         } else {
