@@ -59,7 +59,7 @@
 
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
-        window.location.href = 'login.html';
+        location.replace('login.html');
       } else {
         document.documentElement.style.display = '';
         window.currentUser = data.user;
