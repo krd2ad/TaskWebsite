@@ -65,14 +65,27 @@
   </form>
 
   <div class="toggle" id="toggleText">
-    Don't have an account? <a onclick="toggleMode()">Register</a>
+    Don't have an account? <a href="#">Register</a>
   </div>
 
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    let supabase; // declare globally
+    let supabase;
     let isRegistering = false;
+
+    function toggleMode() {
+      isRegistering = !isRegistering;
+      const formTitle = document.getElementById('formTitle');
+      const submitBtn = document.getElementById('submitBtn');
+      const toggleText = document.getElementById('toggleText');
+
+      formTitle.textContent = isRegistering ? 'Register' : 'Login';
+      submitBtn.textContent = isRegistering ? 'Register' : 'Login';
+      toggleText.innerHTML = isRegistering
+        ? 'Already have an account? <a href="#">Login</a>'
+        : 'Don\'t have an account? <a href="#">Register</a>';
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       supabase = window.supabase.createClient(
@@ -84,8 +97,6 @@
       const emailInput = document.getElementById('email');
       const passwordInput = document.getElementById('password');
       const messageBox = document.getElementById('messageBox');
-      const formTitle = document.getElementById('formTitle');
-      const submitBtn = document.getElementById('submitBtn');
       const toggleText = document.getElementById('toggleText');
 
       function showMessage(msg, success = false) {
@@ -93,16 +104,14 @@
         messageBox.style.color = success ? 'green' : 'red';
       }
 
-      function toggleMode() {
-        isRegistering = !isRegistering;
-        formTitle.textContent = isRegistering ? 'Register' : 'Login';
-        submitBtn.textContent = isRegistering ? 'Register' : 'Login';
-        toggleText.innerHTML = isRegistering
-          ? 'Already have an account? <a onclick="toggleMode()">Login</a>'
-          : 'Don\'t have an account? <a onclick="toggleMode()">Register</a>';
-        showMessage('');
-        form.reset();
-      }
+      toggleText.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') {
+          e.preventDefault();
+          toggleMode();
+          showMessage('');
+          form.reset();
+        }
+      });
 
       form.onsubmit = async (e) => {
         e.preventDefault();
@@ -138,7 +147,7 @@
         }
       };
 
-      // Optional: auto redirect if already logged in
+      // Optional: auto-redirect if already logged in
       supabase.auth.getUser().then(({ data }) => {
         if (data.user) location.replace('index.html');
       });
