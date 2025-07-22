@@ -47,10 +47,6 @@
     }
   </style>
 </head>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-  const supabase = supabase.createClient('https://upyhxhtasgfdelxnpupb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY');
-  </script>
 <body>
   <h1>To-Do Tracker</h1>
   <button onclick="window.location.href='settings.html'">Settings</button>
@@ -93,43 +89,93 @@
 
   <div id="todoList"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    function logout() {
-      localStorage.removeItem('currentUser');
-      window.location.href = 'login.html';
-    }
+    const supabase = supabase.createClient(
+      'https://upyhxhtasgfdelxnpupb.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+    );
 
-    const currentUser = localStorage.getItem('currentUser');
-    const allUsers = JSON.parse(localStorage.getItem('users') || '{}');
-    if (!currentUser || !allUsers[currentUser]) {
-      window.location.href = 'login.html';
-    }
-
-    const todos = allUsers[currentUser].todos || [];
-    const tagSettings = JSON.parse(localStorage.getItem('tagSettings')) || {
+    let todos = [];
+    let user = null;
+    let tagSettings = JSON.parse(localStorage.getItem('tagSettings')) || {
       Work: '#f39c12',
       Personal: '#3498db',
       Academic: '#2ecc71'
     };
 
-    function saveTodos() {
-      allUsers[currentUser].todos = todos;
-      localStorage.setItem('users', JSON.stringify(allUsers));
+    async function init() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      user = data.user;
+      await fetchTodos();
+      populateTagOptions();
+      renderTodos();
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
+    }
+
+    async function fetchTodos() {
+      const { data, error } = await supabase
+        .from('todos')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('due_date', { ascending: true });
+      todos = data || [];
+    }
+
+    async function addTodo() {
+      const task = document.getElementById('taskInput').value;
+      const note = document.getElementById('noteInput').value;
+      const link = document.getElementById('linkInput').value;
+      const priority = document.getElementById('priorityInput').value;
+      const tag = document.getElementById('tagInput').value;
+      const dueDate = document.getElementById('dueDateInput').value;
+
+      if (!task.trim() || !dueDate) return;
+
+      const { data, error } = await supabase.from('todos').insert([{
+        user_id: user.id,
+        task, note, link, priority, tag,
+        due_date: dueDate,
+        completed: false,
+        last_updated: new Date().toISOString()
+      }]).select();
+
+      if (!error) {
+        todos.push(...data);
+        renderTodos();
+        document.querySelector('form').reset();
+      }
+    }
+
+    async function updateTodo(todoId, updates) {
+      const { error } = await supabase.from('todos').update(updates).eq('id', todoId);
+      if (!error) await fetchTodos(), renderTodos();
+    }
+
+    async function deleteTodo(todoId) {
+      const { error } = await supabase.from('todos').delete().eq('id', todoId);
+      if (!error) await fetchTodos(), renderTodos();
     }
 
     function renderTodos() {
       const container = document.getElementById('todoList');
       container.innerHTML = '';
 
-      const priorityFilter = document.getElementById('priorityFilter')?.value || '';
-      const tagFilter = document.getElementById('tagFilter')?.value || '';
+      const priorityFilter = document.getElementById('priorityFilter').value || '';
+      const tagFilter = document.getElementById('tagFilter').value || '';
 
-      const filteredTodos = todos.filter(todo => {
+      todos.filter(todo => {
         return (!priorityFilter || todo.priority === priorityFilter) &&
                (!tagFilter || todo.tag === tagFilter);
-      });
-
-      filteredTodos.forEach(todo => {
+      }).forEach(todo => {
         const card = document.createElement('div');
         card.className = 'todo';
         if (tagSettings[todo.tag]) card.style.borderLeft = `8px solid ${tagSettings[todo.tag]}`;
@@ -139,31 +185,18 @@
         if (todo.completed) title.classList.add('completed');
 
         const note = document.createElement('textarea');
-        note.value = todo.note;
-        note.onchange = e => {
-          todo.note = e.target.value;
-          todo.lastUpdated = new Date().toISOString();
-          saveTodos();
-        };
+        note.value = todo.note || '';
+        note.onchange = e => updateTodo(todo.id, { note: e.target.value });
 
         const link = document.createElement('input');
         link.value = todo.link || '';
         link.placeholder = 'Related URL';
-        link.onchange = e => {
-          todo.link = e.target.value;
-          todo.lastUpdated = new Date().toISOString();
-          saveTodos();
-        };
+        link.onchange = e => updateTodo(todo.id, { link: e.target.value });
 
         const dueDate = document.createElement('input');
         dueDate.type = 'date';
-        dueDate.value = todo.dueDate;
-        dueDate.onchange = e => {
-          todo.dueDate = e.target.value;
-          todo.lastUpdated = new Date().toISOString();
-          saveTodos();
-          renderTodos();
-        };
+        dueDate.value = todo.due_date;
+        dueDate.onchange = e => updateTodo(todo.id, { due_date: e.target.value });
 
         const priority = document.createElement('select');
         ['', 'High', 'Medium', 'Low'].forEach(p => {
@@ -173,11 +206,7 @@
           if (todo.priority === p) opt.selected = true;
           priority.appendChild(opt);
         });
-        priority.onchange = e => {
-          todo.priority = e.target.value;
-          todo.lastUpdated = new Date().toISOString();
-          saveTodos();
-        };
+        priority.onchange = e => updateTodo(todo.id, { priority: e.target.value });
 
         const tag = document.createElement('select');
         ['', ...Object.keys(tagSettings)].forEach(t => {
@@ -187,31 +216,15 @@
           if (todo.tag === t) opt.selected = true;
           tag.appendChild(opt);
         });
-        tag.onchange = e => {
-          todo.tag = e.target.value;
-          todo.lastUpdated = new Date().toISOString();
-          saveTodos();
-          renderTodos();
-        };
+        tag.onchange = e => updateTodo(todo.id, { tag: e.target.value });
 
         const completeBtn = document.createElement('button');
         completeBtn.textContent = todo.completed ? 'Undo' : 'Complete';
-        completeBtn.onclick = () => {
-          todo.completed = !todo.completed;
-          saveTodos();
-          renderTodos();
-        };
+        completeBtn.onclick = () => updateTodo(todo.id, { completed: !todo.completed });
 
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Delete';
-        deleteBtn.onclick = () => {
-          const idx = todos.findIndex(t => t.id === todo.id);
-          if (idx !== -1) {
-            todos.splice(idx, 1);
-            saveTodos();
-            renderTodos();
-          }
-        };
+        deleteBtn.onclick = () => deleteTodo(todo.id);
 
         card.append(title, note, link, dueDate, priority, tag, completeBtn, deleteBtn);
         container.appendChild(card);
@@ -227,42 +240,18 @@
         const opt1 = document.createElement('option');
         opt1.value = tag;
         opt1.textContent = tag;
-        tagSelect?.appendChild(opt1);
+        tagSelect.appendChild(opt1);
 
         const opt2 = document.createElement('option');
         opt2.value = tag;
         opt2.textContent = tag;
-        tagFilter?.appendChild(opt2);
+        tagFilter.appendChild(opt2);
       });
-    }
-
-    function addTodo() {
-      const task = document.getElementById('taskInput').value;
-      const note = document.getElementById('noteInput').value;
-      const link = document.getElementById('linkInput').value;
-      const priority = document.getElementById('priorityInput').value;
-      const tag = document.getElementById('tagInput').value;
-      const dueDate = document.getElementById('dueDateInput').value;
-      if (!task.trim() || !dueDate) return;
-
-      todos.push({
-        id: Date.now(),
-        task,
-        note,
-        link,
-        priority,
-        tag,
-        dueDate,
-        completed: false,
-        lastUpdated: new Date().toISOString()
-      });
-      saveTodos();
-      renderTodos();
     }
 
     function exportCSV() {
       const headers = ['Task','Note','Link','DueDate','Priority','Tag','Completed'];
-      const rows = todos.map(t => [t.task, t.note, t.link, t.dueDate, t.priority, t.tag, t.completed]);
+      const rows = todos.map(t => [t.task, t.note, t.link, t.due_date, t.priority, t.tag, t.completed]);
       const csv = [headers, ...rows].map(row => row.map(item => `"${item || ''}"`).join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
       const a = document.createElement('a');
@@ -271,37 +260,35 @@
       a.click();
     }
 
-    function importCSV(event) {
+    async function importCSV(event) {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = e => {
+      reader.onload = async e => {
         const lines = e.target.result.split('\n').filter(Boolean);
         const [header, ...data] = lines;
         if (!/^"Task","Note","Link","DueDate","Priority","Tag","Completed"$/.test(header.trim())) {
           alert('Invalid CSV format');
           return;
         }
-        todos.length = 0;
-        data.forEach(line => {
-          const [task, note, link, dueDate, priority, tag, completed] = line.split(',').map(v => v.replace(/"/g, ''));
-          if (task && dueDate) {
-            todos.push({
-              id: Date.now() + Math.random(),
-              task, note, link, dueDate, priority, tag,
-              completed: completed === 'true',
-              lastUpdated: new Date().toISOString()
-            });
-          }
+        const inserts = data.map(line => {
+          const [task, note, link, due_date, priority, tag, completed] = line.split(',').map(v => v.replace(/"/g, ''));
+          return {
+            user_id: user.id,
+            task, note, link, due_date,
+            priority, tag,
+            completed: completed === 'true',
+            last_updated: new Date().toISOString()
+          };
         });
-        saveTodos();
+        await supabase.from('todos').insert(inserts);
+        await fetchTodos();
         renderTodos();
       };
       reader.readAsText(file);
     }
 
-    populateTagOptions();
-    renderTodos();
+    init();
   </script>
 
   <footer style="font-size: 0.75em; color: #666; text-align: center; margin-top: 2em;">
