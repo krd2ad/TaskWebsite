@@ -55,16 +55,15 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
     );
 
-    // Prevent rendering until auth check is done
     document.documentElement.style.display = 'none';
 
-    supabase.auth.getUser().then(({ data, error }) => {
+    supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
         window.location.href = 'login.html';
       } else {
         document.documentElement.style.display = '';
         window.currentUser = data.user;
-        init(); // Start app once authenticated
+        init();
       }
     });
   </script>
