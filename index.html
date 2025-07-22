@@ -47,24 +47,29 @@
     }
   </style>
 
-  <!-- Supabase + Redirect Check -->
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const supabase = supabase.createClient(
-      'https://upyhxhtasgfdelxnpupb.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
-    );
 
+  <!-- Auth + Redirect Logic -->
+  <script>
     document.documentElement.style.display = 'none';
 
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        location.replace('login.html');
-      } else {
-        document.documentElement.style.display = '';
-        window.currentUser = data.user;
-        init();
-      }
+    document.addEventListener('DOMContentLoaded', () => {
+      const supabase = window.supabase.createClient(
+        'https://upyhxhtasgfdelxnpupb.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+      );
+
+      supabase.auth.getUser().then(({ data }) => {
+        if (!data.user) {
+          location.replace('login.html');
+        } else {
+          document.documentElement.style.display = '';
+          window.supabase = supabase; // make it globally accessible
+          window.currentUser = data.user;
+          init();
+        }
+      });
     });
   </script>
 </head>
@@ -122,7 +127,7 @@
     async function init() {
       user = window.currentUser;
 
-      const { data, error } = await supabase
+      const { data } = await window.supabase
         .from('todos')
         .select('*')
         .eq('user_id', user.id)
@@ -134,7 +139,7 @@
     }
 
     async function logout() {
-      await supabase.auth.signOut();
+      await window.supabase.auth.signOut();
       window.location.href = 'login.html';
     }
 
@@ -148,7 +153,7 @@
 
       if (!task.trim() || !dueDate) return;
 
-      const { data, error } = await supabase.from('todos').insert([{
+      const { data } = await window.supabase.from('todos').insert([{
         user_id: user.id,
         task, note, link, priority, tag,
         due_date: dueDate,
@@ -156,7 +161,7 @@
         last_updated: new Date().toISOString()
       }]).select();
 
-      if (!error) {
+      if (data) {
         todos.push(...data);
         renderTodos();
         document.querySelector('form').reset();
@@ -164,14 +169,14 @@
     }
 
     async function updateTodo(todoId, updates) {
-      await supabase.from('todos').update(updates).eq('id', todoId);
-      const { data } = await supabase.from('todos').select('*').eq('user_id', user.id);
+      await window.supabase.from('todos').update(updates).eq('id', todoId);
+      const { data } = await window.supabase.from('todos').select('*').eq('user_id', user.id);
       todos = data || [];
       renderTodos();
     }
 
     async function deleteTodo(todoId) {
-      await supabase.from('todos').delete().eq('id', todoId);
+      await window.supabase.from('todos').delete().eq('id', todoId);
       todos = todos.filter(t => t.id !== todoId);
       renderTodos();
     }
@@ -245,8 +250,8 @@
     function populateTagOptions() {
       const tagSelect = document.getElementById('tagInput');
       const tagFilter = document.getElementById('tagFilter');
-      if (tagSelect) tagSelect.innerHTML = '<option value="">--Tag--</option>';
-      if (tagFilter) tagFilter.innerHTML = '<option value="">--All--</option>';
+      tagSelect.innerHTML = '<option value="">--Tag--</option>';
+      tagFilter.innerHTML = '<option value="">--All--</option>';
       Object.keys(tagSettings).forEach(tag => {
         const opt1 = document.createElement('option');
         opt1.value = tag;
@@ -292,7 +297,7 @@
             last_updated: new Date().toISOString()
           };
         });
-        await supabase.from('todos').insert(inserts);
+        await window.supabase.from('todos').insert(inserts);
         await init();
       };
       reader.readAsText(file);
