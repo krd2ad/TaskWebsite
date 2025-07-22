@@ -52,10 +52,12 @@
 
   <!-- Auth + Redirect Logic -->
   <script>
+    let supabase; // Global variable
+
     document.documentElement.style.display = 'none';
 
     document.addEventListener('DOMContentLoaded', () => {
-      const supabase = window.supabase.createClient(
+      supabase = window.supabase.createClient(
         'https://upyhxhtasgfdelxnpupb.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
       );
@@ -65,7 +67,6 @@
           location.replace('login.html');
         } else {
           document.documentElement.style.display = '';
-          window.supabase = supabase; // make it globally accessible
           window.currentUser = data.user;
           init();
         }
@@ -127,7 +128,7 @@
     async function init() {
       user = window.currentUser;
 
-      const { data } = await window.supabase
+      const { data } = await supabase
         .from('todos')
         .select('*')
         .eq('user_id', user.id)
@@ -139,8 +140,8 @@
     }
 
     async function logout() {
-      await window.supabase.auth.signOut();
-      window.location.href = 'login.html';
+      await supabase.auth.signOut();
+      location.replace('login.html');
     }
 
     async function addTodo() {
@@ -153,7 +154,7 @@
 
       if (!task.trim() || !dueDate) return;
 
-      const { data } = await window.supabase.from('todos').insert([{
+      const { data } = await supabase.from('todos').insert([{
         user_id: user.id,
         task, note, link, priority, tag,
         due_date: dueDate,
@@ -169,14 +170,14 @@
     }
 
     async function updateTodo(todoId, updates) {
-      await window.supabase.from('todos').update(updates).eq('id', todoId);
-      const { data } = await window.supabase.from('todos').select('*').eq('user_id', user.id);
+      await supabase.from('todos').update(updates).eq('id', todoId);
+      const { data } = await supabase.from('todos').select('*').eq('user_id', user.id);
       todos = data || [];
       renderTodos();
     }
 
     async function deleteTodo(todoId) {
-      await window.supabase.from('todos').delete().eq('id', todoId);
+      await supabase.from('todos').delete().eq('id', todoId);
       todos = todos.filter(t => t.id !== todoId);
       renderTodos();
     }
@@ -297,7 +298,7 @@
             last_updated: new Date().toISOString()
           };
         });
-        await window.supabase.from('todos').insert(inserts);
+        await supabase.from('todos').insert(inserts);
         await init();
       };
       reader.readAsText(file);
