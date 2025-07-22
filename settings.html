@@ -26,6 +26,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      margin: 0.25em;
     }
     .tag-row {
       display: flex;
@@ -46,32 +47,34 @@
   <div id="tagContainer"></div>
   <button onclick="addTag()">Add Tag</button>
   <button onclick="saveTags()">Save</button>
-  <button onclick="window.location.href='index.html'">Back to Tasks</button>
+  <button onclick="location.replace('index.html')">Back to Tasks</button>
 
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const supabase = supabase.createClient(
-      'https://upyhxhtasgfdelxnpupb.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
-    );
-
-    let user = null;
+    let supabase;
     let tagSettings = {};
 
-    async function init() {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        window.location.href = 'login.html';
+    document.addEventListener('DOMContentLoaded', async () => {
+      supabase = window.supabase.createClient(
+        'https://upyhxhtasgfdelxnpupb.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+      );
+
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        location.replace('login.html');
         return;
       }
-      user = data.user;
+
       tagSettings = JSON.parse(localStorage.getItem('tagSettings')) || {
         Work: '#f39c12',
         Personal: '#3498db',
         Academic: '#2ecc71'
       };
+
       renderTags();
-    }
+    });
 
     function renderTags() {
       const container = document.getElementById('tagContainer');
@@ -120,8 +123,6 @@
       localStorage.setItem('tagSettings', JSON.stringify(updatedTags));
       alert('Tags saved!');
     }
-
-    init();
   </script>
 </body>
 </html>
