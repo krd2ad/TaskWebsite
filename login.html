@@ -71,7 +71,6 @@
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Initialize Supabase
     const supabase = supabase.createClient(
       'https://upyhxhtasgfdelxnpupb.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
@@ -120,12 +119,16 @@
         let result;
         if (isRegistering) {
           result = await supabase.auth.signUp({
-            credentials: { email, password }
+            email,
+            password
           });
           if (result.error) return showMessage(result.error.message);
           showMessage('Registered successfully. Redirecting...', true);
         } else {
-          result = await supabase.auth.signInWithPassword({ email, password });
+          result = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
           if (result.error) return showMessage('Invalid login credentials');
           showMessage('Login successful. Redirecting...', true);
         }
