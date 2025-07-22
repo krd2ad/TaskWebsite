@@ -67,12 +67,16 @@
   <div class="toggle" id="toggleText">
     Don't have an account? <a onclick="toggleMode()">Register</a>
   </div>
+
+  <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-  const supabase = supabase.createClient('https://upyhxhtasgfdelxnpupb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY');
-  </script>
+    // Initialize Supabase
+    const supabase = supabase.createClient(
+      'https://upyhxhtasgfdelxnpupb.supabase.c',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+    );
 
-  <script>
     let isRegistering = false;
 
     const form = document.getElementById('authForm');
@@ -82,13 +86,6 @@
     const formTitle = document.getElementById('formTitle');
     const submitBtn = document.getElementById('submitBtn');
     const toggleText = document.getElementById('toggleText');
-
-    async function hashPassword(password) {
-      const msgUint8 = new TextEncoder().encode(password);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
 
     function showMessage(msg, success = false) {
       messageBox.textContent = msg;
@@ -119,28 +116,25 @@
         return showMessage('Password must be at least 6 characters');
       }
 
-      const users = JSON.parse(localStorage.getItem('users') || '{}');
-      const hashedPassword = await hashPassword(password);
+      try {
+        let result;
+        if (isRegistering) {
+          result = await supabase.auth.signUp({ email, password });
+          if (result.error) return showMessage(result.error.message);
+          showMessage('Registered successfully. Redirecting...', true);
+        } else {
+          result = await supabase.auth.signInWithPassword({ email, password });
+          if (result.error) return showMessage('Invalid login credentials');
+          showMessage('Login successful. Redirecting...', true);
+        }
 
-      if (isRegistering) {
-        if (users[email]) {
-          return showMessage('User already exists');
-        }
-        users[email] = { password: hashedPassword, todos: [] };
-        localStorage.setItem('users', JSON.stringify(users));
-        localStorage.setItem('currentUser', email);
-        showMessage('Registered successfully. Redirecting...', true);
-      } else {
-        if (!users[email] || users[email].password !== hashedPassword) {
-          return showMessage('Invalid login credentials');
-        }
-        localStorage.setItem('currentUser', email);
-        showMessage('Login successful. Redirecting...', true);
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1000);
+      } catch (err) {
+        showMessage('Unexpected error. Please try again.');
+        console.error(err);
       }
-
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1000);
     };
   </script>
 </body>
