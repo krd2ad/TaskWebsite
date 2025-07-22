@@ -2,147 +2,126 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login / Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings</title>
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f0f2f5;
+      background-color: #f5f5f5;
+      color: #111;
+      margin: 2em auto;
+      max-width: 600px;
       padding: 2em;
-      max-width: 400px;
-      margin: auto;
     }
-    h2 {
-      margin-bottom: 1em;
-      text-align: center;
-    }
-    input {
-      width: 100%;
-      padding: 0.75em;
-      margin-bottom: 1em;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    input[type="text"], input[type="color"] {
+      padding: 0.5em;
+      margin: 0.5em;
       font-size: 1em;
     }
     button {
-      width: 100%;
-      padding: 0.75em;
+      padding: 0.5em 1em;
+      font-size: 1em;
       background-color: #0055ff;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 1em;
-      font-size: 1em;
     }
-    .toggle {
-      text-align: center;
+    .tag-row {
+      display: flex;
+      align-items: center;
       margin-bottom: 1em;
-      font-size: 0.9em;
-      color: #333;
     }
-    .toggle a {
-      color: #0055ff;
-      cursor: pointer;
-      text-decoration: underline;
+    .tag-row input[type="text"] {
+      flex: 1;
     }
-    .message {
-      text-align: center;
-      font-size: 0.9em;
-      margin-bottom: 1em;
-      color: red;
+    .tag-row input[type="color"] {
+      width: 50px;
+      height: 40px;
     }
   </style>
 </head>
 <body>
-  <h2 id="formTitle">Login</h2>
-  <div class="message" id="messageBox"></div>
+  <h1>Tag Settings</h1>
+  <div id="tagContainer"></div>
+  <button onclick="addTag()">Add Tag</button>
+  <button onclick="saveTags()">Save</button>
+  <button onclick="window.location.href='index.html'">Back to Tasks</button>
 
-  <form id="authForm">
-    <input type="email" id="email" placeholder="Email" autocomplete="email" required />
-    <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
-    <button type="submit" id="submitBtn">Login</button>
-  </form>
-
-  <div class="toggle" id="toggleText">
-    Don't have an account? <a onclick="toggleMode()">Register</a>
-  </div>
-
-  <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    let supabase; // declare globally
-    let isRegistering = false;
+    const supabase = supabase.createClient(
+      'https://upyhxhtasgfdelxnpupb.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+    );
 
-    document.addEventListener('DOMContentLoaded', () => {
-      supabase = window.supabase.createClient(
-        'https://upyhxhtasgfdelxnpupb.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
-      );
+    let user = null;
+    let tagSettings = {};
 
-      const form = document.getElementById('authForm');
-      const emailInput = document.getElementById('email');
-      const passwordInput = document.getElementById('password');
-      const messageBox = document.getElementById('messageBox');
-      const formTitle = document.getElementById('formTitle');
-      const submitBtn = document.getElementById('submitBtn');
-      const toggleText = document.getElementById('toggleText');
-
-      function showMessage(msg, success = false) {
-        messageBox.textContent = msg;
-        messageBox.style.color = success ? 'green' : 'red';
+    async function init() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        window.location.href = 'login.html';
+        return;
       }
-
-      function toggleMode() {
-        isRegistering = !isRegistering;
-        formTitle.textContent = isRegistering ? 'Register' : 'Login';
-        submitBtn.textContent = isRegistering ? 'Register' : 'Login';
-        toggleText.innerHTML = isRegistering
-          ? 'Already have an account? <a onclick="toggleMode()">Login</a>'
-          : 'Don\'t have an account? <a onclick="toggleMode()">Register</a>';
-        showMessage('');
-        form.reset();
-      }
-
-      form.onsubmit = async (e) => {
-        e.preventDefault();
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-
-        if (!email || !password) {
-          return showMessage('Enter email and password');
-        }
-
-        if (password.length < 6) {
-          return showMessage('Password must be at least 6 characters');
-        }
-
-        try {
-          let result;
-          if (isRegistering) {
-            result = await supabase.auth.signUp({ email, password });
-            if (result.error) return showMessage(result.error.message);
-            showMessage('Registered successfully. Redirecting...', true);
-          } else {
-            result = await supabase.auth.signInWithPassword({ email, password });
-            if (result.error) return showMessage('Invalid login credentials');
-            showMessage('Login successful. Redirecting...', true);
-          }
-
-          setTimeout(() => {
-            location.replace('index.html');
-          }, 1000);
-        } catch (err) {
-          showMessage('Unexpected error. Please try again.');
-          console.error(err);
-        }
+      user = data.user;
+      tagSettings = JSON.parse(localStorage.getItem('tagSettings')) || {
+        Work: '#f39c12',
+        Personal: '#3498db',
+        Academic: '#2ecc71'
       };
+      renderTags();
+    }
 
-      // Optional: auto redirect if already logged in
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) location.replace('index.html');
+    function renderTags() {
+      const container = document.getElementById('tagContainer');
+      container.innerHTML = '';
+      Object.entries(tagSettings).forEach(([tag, color]) => {
+        const row = document.createElement('div');
+        row.className = 'tag-row';
+
+        const tagInput = document.createElement('input');
+        tagInput.type = 'text';
+        tagInput.value = tag;
+        tagInput.className = 'tag-name';
+
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.value = color;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = () => {
+          delete tagSettings[tag];
+          renderTags();
+        };
+
+        row.appendChild(tagInput);
+        row.appendChild(colorInput);
+        row.appendChild(deleteBtn);
+        container.appendChild(row);
       });
-    });
+    }
+
+    function addTag() {
+      tagSettings['NewTag'] = '#000000';
+      renderTags();
+    }
+
+    function saveTags() {
+      const tagContainer = document.getElementById('tagContainer');
+      const rows = tagContainer.querySelectorAll('.tag-row');
+      const updatedTags = {};
+      rows.forEach(row => {
+        const name = row.querySelector('.tag-name').value.trim();
+        const color = row.querySelector('input[type="color"]').value;
+        if (name) updatedTags[name] = color;
+      });
+      localStorage.setItem('tagSettings', JSON.stringify(updatedTags));
+      alert('Tags saved!');
+    }
+
+    init();
   </script>
 </body>
 </html>
