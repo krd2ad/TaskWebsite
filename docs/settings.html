@@ -40,6 +40,40 @@
 </header>
 
   <main class="w-full max-w-3xl bg-white rounded-xl shadow-md p-6 space-y-6">
+<section class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 space-y-6 mt-10">
+  <h2 class="text-xl font-semibold text-gray-800">Settings</h2>
+
+  <div class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Display Name</label>
+      <input type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Your name">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Email Notifications</label>
+      <select class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+        <option>All</option>
+        <option>Important only</option>
+        <option>None</option>
+      </select>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <span class="text-sm text-gray-700">Enable Dark Mode</span>
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="checkbox" class="sr-only peer">
+        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 relative">
+          <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-full"></div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <button class="w-full mt-6 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+    Save Changes
+  </button>
+</section>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
