@@ -5,7 +5,7 @@ This is a simple task management front-end using **Tailwind CSS**, **Supabase Au
 
 ## 🌐 Live Demo
  
-Once deployed, your site will be live at:
+Once deployed, your site will be live at: 
 
 ```
 https://<your-username>.github.io/<repo-name>/
