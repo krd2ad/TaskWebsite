@@ -1,0 +1,12 @@
+
+{
+  "name": "task-website",
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
+    "build:html": "cp src/*.html dist/",
+    "build": "npm run build:css && npm run build:html"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}
