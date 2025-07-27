@@ -1,56 +1,99 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Task Website</title>
-<link href="output.css" rel="stylesheet"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task Website</title>
+  <link href="output.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col items-center justify-start py-12 px-4">
 <header class="bg-white shadow">
-<div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-<a class="flex items-center space-x-2 text-blue-600 font-bold text-lg" href="index.html">
-<svg class="w-6 h-6 text-blue-600" fill="currentColor" viewbox="0 0 20 20">
-<path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"></path>
-</svg>
-<span>Taskolo</span>
-</a>
-<nav class="space-x-4 text-sm text-gray-700">
-<a class="text-blue-600 font-semibold" href="index.html">Home</a>
-<a class="hover:text-blue-600" href="settings.html">Settings</a>
-<a class="hover:text-blue-600" href="#" onclick="logout()">Logout</a>
-</nav>
-</div>
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="index.html" class="flex items-center space-x-2 text-blue-600 font-bold text-lg">
+      <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
+      </svg>
+      <span>Taskolo</span>
+    </a>
+    <nav class="space-x-4 text-sm text-gray-700">
+      <a href="index.html" class="text-blue-600 font-semibold">Home</a>
+      <a href="settings.html" class="hover:text-blue-600">Settings</a>
+      <a href="#" onclick="logout()" class="hover:text-blue-600">Logout</a>
+    </nav>
+  </div>
 </header>
+
 <header class="bg-white shadow">
-<div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-<a class="flex items-center space-x-2 text-blue-600 font-bold text-lg" href="index.html">
-<svg class="w-6 h-6 text-blue-600" fill="currentColor" viewbox="0 0 20 20">
-<path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"></path>
-</svg>
-<span>Taskolo</span>
-</a>
-<nav class="space-x-4 text-sm text-gray-700">
-<a class="hover:text-blue-600" href="index.html">Home</a>
-<a class="hover:text-blue-600" href="settings.html">Settings</a>
-<a class="hover:text-blue-600" href="login.html">Login</a>
-</nav>
-</div>
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="index.html" class="flex items-center space-x-2 text-blue-600 font-bold text-lg">
+      <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
+      </svg>
+      <span>Taskolo</span>
+    </a>
+    <nav class="space-x-4 text-sm text-gray-700">
+      <a href="index.html" class="hover:text-blue-600">Home</a>
+      <a href="settings.html" class="hover:text-blue-600">Settings</a>
+      <a href="login.html" class="hover:text-blue-600">Login</a>
+    </nav>
+  </div>
 </header>
-<main class="w-full max-w-3xl bg-white rounded-xl shadow-md p-6 space-y-6">
+
+  <main class="w-full max-w-3xl bg-white rounded-xl shadow-md p-6 space-y-6">
 <!DOCTYPE html>
-
-
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Simple To-Do Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple To-Do Tracker</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f5f5;
+      color: #111;
+      margin: 2em auto;
+      max-width: 800px;
+      padding: 2em;
+    }
+    input, textarea, select {
+      width: 100%;
+      margin-top: 0.5em;
+      padding: 0.75em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 1em;
+      font-size: 1em;
+      background: white;
+      color: #111;
+    }
+    button {
+      margin: 0.5em 0.25em;
+      padding: 0.6em 1.2em;
+      font-size: 1em;
+      background-color: #0055ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .todo {
+      background-color: white;
+      border: 1px solid #ddd;
+      padding: 1em;
+      margin-top: 1em;
+      border-radius: 6px;
+    }
+    .completed {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+  </style>
 
-<!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Auth + Redirect Logic -->
-<script>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Auth + Redirect Logic -->
+  <script>
     let supabase; // Global variable
 
     document.documentElement.style.display = 'none';
@@ -74,42 +117,48 @@
   </script>
 </head>
 <body>
-<h1>To-Do Tracker</h1>
-<button onclick="window.location.href='settings.html'">Settings</button>
-<button onclick="logout()">Sign Out</button>
-<form onsubmit="event.preventDefault(); addTodo();">
-<input id="taskInput" placeholder="New task" required=""/>
-<textarea id="noteInput" placeholder="Optional note"></textarea>
-<input id="linkInput" placeholder="Related URL (optional)"/>
-<input id="dueDateInput" required="" type="date"/>
-<select id="priorityInput">
-<option value="">--Priority--</option>
-<option>High</option>
-<option>Medium</option>
-<option>Low</option>
-</select>
-<select id="tagInput">
-<option value="">--Tag--</option>
-</select>
-<button type="submit">Add</button>
-</form>
-<button onclick="exportCSV()">Export CSV</button>
-<input accept=".csv" id="importCSVInput" onchange="importCSV(event)" type="file"/>
-<div style="margin: 1em 0;">
-<label for="priorityFilter">Filter by Priority:</label>
-<select id="priorityFilter" onchange="renderTodos()">
-<option value="">--All--</option>
-<option>High</option>
-<option>Medium</option>
-<option>Low</option>
-</select>
-<label for="tagFilter" style="margin-left:1em;">Filter by Tag:</label>
-<select id="tagFilter" onchange="renderTodos()">
-<option value="">--All--</option>
-</select>
-</div>
-<div id="todoList"></div>
-<script>
+  <h1>To-Do Tracker</h1>
+  <button onclick="window.location.href='settings.html'">Settings</button>
+  <button onclick="logout()">Sign Out</button>
+
+  <form onsubmit="event.preventDefault(); addTodo();">
+    <input id="taskInput" placeholder="New task" required />
+    <textarea id="noteInput" placeholder="Optional note"></textarea>
+    <input id="linkInput" placeholder="Related URL (optional)" />
+    <input type="date" id="dueDateInput" required />
+    <select id="priorityInput">
+      <option value="">--Priority--</option>
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+    <select id="tagInput">
+      <option value="">--Tag--</option>
+    </select>
+    <button type="submit">Add</button>
+  </form>
+
+  <button onclick="exportCSV()">Export CSV</button>
+  <input type="file" id="importCSVInput" accept=".csv" onchange="importCSV(event)" />
+
+  <div style="margin: 1em 0;">
+    <label for="priorityFilter">Filter by Priority:</label>
+    <select id="priorityFilter" onchange="renderTodos()">
+      <option value="">--All--</option>
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+
+    <label for="tagFilter" style="margin-left:1em;">Filter by Tag:</label>
+    <select id="tagFilter" onchange="renderTodos()">
+      <option value="">--All--</option>
+    </select>
+  </div>
+
+  <div id="todoList"></div>
+
+  <script>
     let todos = [];
     let user = null;
     let tagSettings = JSON.parse(localStorage.getItem('tagSettings')) || {
@@ -297,9 +346,11 @@
       reader.readAsText(file);
     }
   </script>
-<footer style="font-size: 0.75em; color: #666; text-align: center; margin-top: 2em;">
-    Designed by <a href="https://www.linkedin.com/in/kiernan-dimeglio/" style="color: #0055ff; text-decoration: none;" target="_blank">Kiernan DiMeglio</a> via AI
+
+  <footer style="font-size: 0.75em; color: #666; text-align: center; margin-top: 2em;">
+    Designed by <a href="https://www.linkedin.com/in/kiernan-dimeglio/" target="_blank" style="color: #0055ff; text-decoration: none;">Kiernan DiMeglio</a> via AI
   </footer>
+
 <script>
   const supabase = window.supabase?.createClient(
     'https://upyhxhtasgfdelxnpupb.supabase.co',
@@ -315,12 +366,15 @@
     if (!data.user) location.replace('login.html');
   });
 </script>
+
 </body>
+</html>
 
-</main>
-<footer class="mt-12 text-xs text-center text-gray-500">
-    Crafted with care by <a class="text-blue-600" href="https://www.linkedin.com/in/kiernan-dimeglio/" target="_blank">Kiernan DiMeglio</a>
-</footer>
+  </main>
+  <footer class="mt-12 text-xs text-center text-gray-500">
+    Crafted with care by <a href="https://www.linkedin.com/in/kiernan-dimeglio/" target="_blank" class="text-blue-600">Kiernan DiMeglio</a>
+  </footer>
+
 <script>
   const supabase = window.supabase?.createClient(
     'https://upyhxhtasgfdelxnpupb.supabase.co',
@@ -336,5 +390,6 @@
     if (!data.user) location.replace('login.html');
   });
 </script>
+
 </body>
 </html>
