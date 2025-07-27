@@ -9,13 +9,28 @@
       font-family: 'Inter', sans-serif;
       background-color: #f0f2f5;
       padding: 2em;
-      max-width: 400px;
-      margin: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
+
+    .container {
+      background: white;
+      padding: 2em;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+
     h2 {
       margin-bottom: 1em;
       text-align: center;
     }
+
     input {
       width: 100%;
       padding: 0.75em;
@@ -23,7 +38,39 @@
       border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 1em;
+      transition: border 0.3s, box-shadow 0.3s;
     }
+
+    input:focus {
+      border-color: #0055ff;
+      box-shadow: 0 0 0 3px rgba(0, 85, 255, 0.2);
+      outline: none;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1em;
+      color: #555;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1em;
+      font-size: 0.9em;
+      gap: 0.5em;
+    }
+
     button {
       width: 100%;
       padding: 0.75em;
@@ -32,40 +79,72 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 1em;
       font-size: 1em;
+      transition: background-color 0.3s ease;
     }
+
+    button:hover {
+      background-color: #003dcc;
+    }
+
     .toggle {
       text-align: center;
-      margin-bottom: 1em;
+      margin-top: 1em;
       font-size: 0.9em;
       color: #333;
     }
+
     .toggle a {
       color: #0055ff;
       cursor: pointer;
       text-decoration: underline;
     }
+
     .message {
       text-align: center;
       font-size: 0.9em;
       margin-bottom: 1em;
       color: red;
     }
+
+    footer {
+      font-size: 0.75em;
+      color: #666;
+      text-align: center;
+      margin-top: 2em;
+    }
+
+    footer a {
+      color: #0055ff;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
-  <h2 id="formTitle">Login</h2>
-  <div class="message" id="messageBox"></div>
+  <div class="container">
+    <h2 id="formTitle">Login</h2>
+    <div class="message" id="messageBox"></div>
 
-  <form id="authForm">
-    <input type="email" id="email" placeholder="Email" autocomplete="email" required />
-    <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
-    <button type="submit" id="submitBtn">Login</button>
-  </form>
+    <form id="authForm">
+      <input type="email" id="email" placeholder="Email" autocomplete="email" required />
+      <div class="password-wrapper">
+        <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
+        <button type="button" class="toggle-password" onclick="togglePassword()">👁️</button>
+      </div>
+      <div class="remember-me">
+        <input type="checkbox" id="remember" />
+        <label for="remember">Remember me</label>
+      </div>
+      <button type="submit" id="submitBtn">Login</button>
+    </form>
 
-  <div class="toggle" id="toggleText">
-    Don't have an account? <a href="#">Register</a>
+    <div class="toggle" id="toggleText">
+      Don't have an account? <a href="#">Register</a>
+    </div>
+
+    <footer>
+      Crafted with care by <a href="https://www.linkedin.com/in/kiernan-dimeglio/" target="_blank">Kiernan DiMeglio</a>
+    </footer>
   </div>
 
   <!-- Supabase JS SDK -->
@@ -73,6 +152,11 @@
   <script>
     let supabase;
     let isRegistering = false;
+
+    function togglePassword() {
+      const passwordField = document.getElementById("password");
+      passwordField.type = passwordField.type === "password" ? "text" : "password";
+    }
 
     function toggleMode() {
       isRegistering = !isRegistering;
@@ -153,9 +237,5 @@
       });
     });
   </script>
-
-  <footer style="font-size: 0.75em; color: #666; text-align: center; margin-top: 3em;">
-    Crafted with care by <a href="https://www.linkedin.com/in/kiernan-dimeglio/" target="_blank" style="color: #0055ff; text-decoration: none;">Kiernan DiMeglio</a>
-  </footer>
 </body>
 </html>
