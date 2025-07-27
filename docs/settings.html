@@ -1,91 +1,133 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Task Website</title>
-<link href="output.css" rel="stylesheet"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task Website</title>
+  <link href="output.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col items-center justify-start py-12 px-4">
 <header class="bg-white shadow">
-<div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-<a class="flex items-center space-x-2 text-blue-600 font-bold text-lg" href="index.html">
-<svg class="w-6 h-6 text-blue-600" fill="currentColor" viewbox="0 0 20 20">
-<path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"></path>
-</svg>
-<span>Taskolo</span>
-</a>
-<nav class="space-x-4 text-sm text-gray-700">
-<a class="hover:text-blue-600" href="index.html">Home</a>
-<a class="text-blue-600 font-semibold" href="settings.html">Settings</a>
-<a class="hover:text-blue-600" href="#" onclick="logout()">Logout</a>
-</nav>
-</div>
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="index.html" class="flex items-center space-x-2 text-blue-600 font-bold text-lg">
+      <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
+      </svg>
+      <span>Taskolo</span>
+    </a>
+    <nav class="space-x-4 text-sm text-gray-700">
+      <a href="index.html" class="hover:text-blue-600">Home</a>
+      <a href="settings.html" class="text-blue-600 font-semibold">Settings</a>
+      <a href="#" onclick="logout()" class="hover:text-blue-600">Logout</a>
+    </nav>
+  </div>
 </header>
+
 <header class="bg-white shadow">
-<div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-<a class="flex items-center space-x-2 text-blue-600 font-bold text-lg" href="index.html">
-<svg class="w-6 h-6 text-blue-600" fill="currentColor" viewbox="0 0 20 20">
-<path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"></path>
-</svg>
-<span>Taskolo</span>
-</a>
-<nav class="space-x-4 text-sm text-gray-700">
-<a class="hover:text-blue-600" href="index.html">Home</a>
-<a class="hover:text-blue-600" href="settings.html">Settings</a>
-<a class="hover:text-blue-600" href="login.html">Login</a>
-</nav>
-</div>
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="index.html" class="flex items-center space-x-2 text-blue-600 font-bold text-lg">
+      <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
+      </svg>
+      <span>Taskolo</span>
+    </a>
+    <nav class="space-x-4 text-sm text-gray-700">
+      <a href="index.html" class="hover:text-blue-600">Home</a>
+      <a href="settings.html" class="hover:text-blue-600">Settings</a>
+      <a href="login.html" class="hover:text-blue-600">Login</a>
+    </nav>
+  </div>
 </header>
-<main class="w-full max-w-3xl bg-white rounded-xl shadow-md p-6 space-y-6">
+
+  <main class="w-full max-w-3xl bg-white rounded-xl shadow-md p-6 space-y-6">
 <section class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 space-y-6 mt-10">
-<h2 class="text-xl font-semibold text-gray-800">Settings</h2>
-<div class="space-y-4">
-<div>
-<label class="block text-sm font-medium text-gray-700">Display Name</label>
-<input class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Your name" type="text"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700">Email Notifications</label>
-<select class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-<option>All</option>
-<option>Important only</option>
-<option>None</option>
-</select>
-</div>
-<div class="flex items-center justify-between">
-<span class="text-sm text-gray-700">Enable Dark Mode</span>
-<label class="inline-flex items-center cursor-pointer">
-<input class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 relative">
-<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-full"></div>
-</div>
-</label>
-</div>
-</div>
-<button class="w-full mt-6 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+  <h2 class="text-xl font-semibold text-gray-800">Settings</h2>
+
+  <div class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Display Name</label>
+      <input type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Your name">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Email Notifications</label>
+      <select class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+        <option>All</option>
+        <option>Important only</option>
+        <option>None</option>
+      </select>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <span class="text-sm text-gray-700">Enable Dark Mode</span>
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="checkbox" class="sr-only peer">
+        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 relative">
+          <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-full"></div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <button class="w-full mt-6 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
     Save Changes
   </button>
 </section>
+
 <!DOCTYPE html>
-
-
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Settings</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f5f5;
+      color: #111;
+      margin: 2em auto;
+      max-width: 600px;
+      padding: 2em;
+    }
+    input[type="text"], input[type="color"] {
+      padding: 0.5em;
+      margin: 0.5em;
+      font-size: 1em;
+    }
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      background-color: #0055ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.25em;
+    }
+    .tag-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1em;
+    }
+    .tag-row input[type="text"] {
+      flex: 1;
+    }
+    .tag-row input[type="color"] {
+      width: 50px;
+      height: 40px;
+    }
+  </style>
 </head>
 <body>
-<h1>Tag Settings</h1>
-<div id="tagContainer"></div>
-<button onclick="addTag()">Add Tag</button>
-<button onclick="saveTags()">Save</button>
-<button onclick="location.replace('index.html')">Back to Tasks</button>
-<!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
+  <h1>Tag Settings</h1>
+  <div id="tagContainer"></div>
+  <button onclick="addTag()">Add Tag</button>
+  <button onclick="saveTags()">Save</button>
+  <button onclick="location.replace('index.html')">Back to Tasks</button>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
     let supabase;
     let tagSettings = {};
 
@@ -158,6 +200,7 @@
       alert('Tags saved!');
     }
   </script>
+
 <script>
   const supabase = window.supabase?.createClient(
     'https://upyhxhtasgfdelxnpupb.supabase.co',
@@ -173,12 +216,15 @@
     if (!data.user) location.replace('login.html');
   });
 </script>
+
 </body>
+</html>
 
-</main>
-<footer class="mt-12 text-xs text-center text-gray-500">
-    Crafted with care by <a class="text-blue-600" href="https://www.linkedin.com/in/kiernan-dimeglio/" target="_blank">Kiernan DiMeglio</a>
-</footer>
+  </main>
+  <footer class="mt-12 text-xs text-center text-gray-500">
+    Crafted with care by <a href="https://www.linkedin.com/in/kiernan-dimeglio/" target="_blank" class="text-blue-600">Kiernan DiMeglio</a>
+  </footer>
+
 <script>
   const supabase = window.supabase?.createClient(
     'https://upyhxhtasgfdelxnpupb.supabase.co',
@@ -194,5 +240,6 @@
     if (!data.user) location.replace('login.html');
   });
 </script>
+
 </body>
 </html>
