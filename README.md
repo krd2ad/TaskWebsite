@@ -4,7 +4,7 @@
 This is a simple task management front-end using **Tailwind CSS**, **Supabase Auth**, and deployed via **GitHub Pages** using **GitHub Actions**.
 
 ## 🌐 Live Demo
-
+ 
 Once deployed, your site will be live at:
 
 ```
