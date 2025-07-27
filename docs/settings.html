@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task Website</title>
+  <link href="output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col items-center justify-start py-12 px-4">
+<header class="bg-white shadow">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="index.html" class="flex items-center space-x-2 text-blue-600 font-bold text-lg">
+      <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
+      </svg>
+      <span>Taskolo</span>
+    </a>
+    <nav class="space-x-4 text-sm text-gray-700">
+      <a href="index.html" class="hover:text-blue-600">Home</a>
+      <a href="settings.html" class="text-blue-600 font-semibold">Settings</a>
+      <a href="#" onclick="logout()" class="hover:text-blue-600">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<header class="bg-white shadow">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <a href="index.html" class="flex items-center space-x-2 text-blue-600 font-bold text-lg">
+      <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
+      </svg>
+      <span>Taskolo</span>
+    </a>
+    <nav class="space-x-4 text-sm text-gray-700">
+      <a href="index.html" class="hover:text-blue-600">Home</a>
+      <a href="settings.html" class="hover:text-blue-600">Settings</a>
+      <a href="login.html" class="hover:text-blue-600">Login</a>
+    </nav>
+  </div>
+</header>
+
+  <main class="w-full max-w-3xl bg-white rounded-xl shadow-md p-6 space-y-6">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f5f5;
+      color: #111;
+      margin: 2em auto;
+      max-width: 600px;
+      padding: 2em;
+    }
+    input[type="text"], input[type="color"] {
+      padding: 0.5em;
+      margin: 0.5em;
+      font-size: 1em;
+    }
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      background-color: #0055ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0.25em;
+    }
+    .tag-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1em;
+    }
+    .tag-row input[type="text"] {
+      flex: 1;
+    }
+    .tag-row input[type="color"] {
+      width: 50px;
+      height: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tag Settings</h1>
+  <div id="tagContainer"></div>
+  <button onclick="addTag()">Add Tag</button>
+  <button onclick="saveTags()">Save</button>
+  <button onclick="location.replace('index.html')">Back to Tasks</button>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    let supabase;
+    let tagSettings = {};
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      supabase = window.supabase.createClient(
+        'https://upyhxhtasgfdelxnpupb.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+      );
+
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        location.replace('login.html');
+        return;
+      }
+
+      tagSettings = JSON.parse(localStorage.getItem('tagSettings')) || {
+        Work: '#f39c12',
+        Personal: '#3498db',
+        Academic: '#2ecc71'
+      };
+
+      renderTags();
+    });
+
+    function renderTags() {
+      const container = document.getElementById('tagContainer');
+      container.innerHTML = '';
+      Object.entries(tagSettings).forEach(([tag, color]) => {
+        const row = document.createElement('div');
+        row.className = 'tag-row';
+
+        const tagInput = document.createElement('input');
+        tagInput.type = 'text';
+        tagInput.value = tag;
+        tagInput.className = 'tag-name';
+
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.value = color;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = () => {
+          delete tagSettings[tag];
+          renderTags();
+        };
+
+        row.appendChild(tagInput);
+        row.appendChild(colorInput);
+        row.appendChild(deleteBtn);
+        container.appendChild(row);
+      });
+    }
+
+    function addTag() {
+      tagSettings['NewTag'] = '#000000';
+      renderTags();
+    }
+
+    function saveTags() {
+      const tagContainer = document.getElementById('tagContainer');
+      const rows = tagContainer.querySelectorAll('.tag-row');
+      const updatedTags = {};
+      rows.forEach(row => {
+        const name = row.querySelector('.tag-name').value.trim();
+        const color = row.querySelector('input[type="color"]').value;
+        if (name) updatedTags[name] = color;
+      });
+      localStorage.setItem('tagSettings', JSON.stringify(updatedTags));
+      alert('Tags saved!');
+    }
+  </script>
+
+<script>
+  const supabase = window.supabase?.createClient(
+    'https://upyhxhtasgfdelxnpupb.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+  );
+
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  supabase.auth.getUser().then(({ data }) => {
+    if (!data.user) location.replace('login.html');
+  });
+</script>
+
+</body>
+</html>
+
+  </main>
+  <footer class="mt-12 text-xs text-center text-gray-500">
+    Crafted with care by <a href="https://www.linkedin.com/in/kiernan-dimeglio/" target="_blank" class="text-blue-600">Kiernan DiMeglio</a>
+  </footer>
+
+<script>
+  const supabase = window.supabase?.createClient(
+    'https://upyhxhtasgfdelxnpupb.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+  );
+
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  supabase.auth.getUser().then(({ data }) => {
+    if (!data.user) location.replace('login.html');
+  });
+</script>
+
+</body>
+</html>
