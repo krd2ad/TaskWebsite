@@ -3,140 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Task Website</title>
-  <link href="output.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col items-center justify-start py-12 px-4">
-<header class="bg-white shadow">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-    <a href="index.html" class="flex items-center space-x-2 text-blue-600 font-bold text-lg">
-      <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
-      </svg>
-      <span>Taskolo</span>
-    </a>
-    <nav class="space-x-4 text-sm text-gray-700">
-      <a href="index.html" class="hover:text-blue-600">Home</a>
-      <a href="settings.html" class="text-blue-600 font-semibold">Settings</a>
-      <a href="#" onclick="logout()" class="hover:text-blue-600">Logout</a>
-    </nav>
-  </div>
-</header>
-
-<header class="bg-white shadow">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-    <a href="index.html" class="flex items-center space-x-2 text-blue-600 font-bold text-lg">
-      <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
-      </svg>
-      <span>Taskolo</span>
-    </a>
-    <nav class="space-x-4 text-sm text-gray-700">
-      <a href="index.html" class="hover:text-blue-600">Home</a>
-      <a href="settings.html" class="hover:text-blue-600">Settings</a>
-      <a href="login.html" class="hover:text-blue-600">Login</a>
-    </nav>
-  </div>
-</header>
-
-  <main class="w-full max-w-3xl bg-white rounded-xl shadow-md p-6 space-y-6">
-<section class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 space-y-6 mt-10">
-  <h2 class="text-xl font-semibold text-gray-800">Settings</h2>
-
-  <div class="space-y-4">
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Display Name</label>
-      <input type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Your name">
-    </div>
-
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Email Notifications</label>
-      <select class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        <option>All</option>
-        <option>Important only</option>
-        <option>None</option>
-      </select>
-    </div>
-
-    <div class="flex items-center justify-between">
-      <span class="text-sm text-gray-700">Enable Dark Mode</span>
-      <label class="inline-flex items-center cursor-pointer">
-        <input type="checkbox" class="sr-only peer">
-        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 relative">
-          <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-full"></div>
-        </div>
-      </label>
-    </div>
-  </div>
-
-  <button class="w-full mt-6 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-    Save Changes
-  </button>
-</section>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Settings</title>
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f5f5f5;
-      color: #111;
-      margin: 2em auto;
-      max-width: 600px;
-      padding: 2em;
-    }
-    input[type="text"], input[type="color"] {
-      padding: 0.5em;
-      margin: 0.5em;
-      font-size: 1em;
-    }
-    button {
-      padding: 0.5em 1em;
-      font-size: 1em;
-      background-color: #0055ff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin: 0.25em;
-    }
-    .tag-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1em;
-    }
-    .tag-row input[type="text"] {
-      flex: 1;
-    }
-    .tag-row input[type="color"] {
-      width: 50px;
-      height: 40px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Tag Settings</h1>
-  <div id="tagContainer"></div>
-  <button onclick="addTag()">Add Tag</button>
-  <button onclick="saveTags()">Save</button>
-  <button onclick="location.replace('index.html')">Back to Tasks</button>
-
-  <!-- Supabase SDK -->
+  <link href="output.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    let supabase;
+    const supabase = window.supabase?.createClient(
+      'https://upyhxhtasgfdelxnpupb.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+    );
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
+    }
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) location.replace('login.html');
+    });
+  </script>
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen px-4 py-10">
+  <header class="bg-white shadow mb-8">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="flex items-center space-x-2 text-blue-600 font-bold text-lg">
+        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
+        </svg>
+        <span>Taskolo</span>
+      </a>
+      <nav class="space-x-4 text-sm text-gray-700">
+        <a href="index.html" class="hover:text-blue-600">Home</a>
+        <a href="settings.html" class="text-blue-600 font-semibold">Settings</a>
+        <a href="#" onclick="logout()" class="hover:text-blue-600">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-6 space-y-10">
+    <!-- Display & Notification Settings -->
+    <section class="space-y-6">
+      <h2 class="text-xl font-semibold text-gray-800">Settings</h2>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Display Name</label>
+          <input type="text" class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Your name">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email Notifications</label>
+          <select class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            <option>All</option>
+            <option>Important only</option>
+            <option>None</option>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-700">Enable Dark Mode</span>
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 relative">
+              <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-full"></div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <button class="w-full mt-6 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+        Save Changes
+      </button>
+    </section>
+
+    <!-- Tag Settings -->
+    <section class="space-y-6">
+      <h2 class="text-xl font-semibold text-gray-800">Tag Settings</h2>
+      <div id="tagContainer" class="space-y-2"></div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="addTag()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Add Tag</button>
+        <button onclick="saveTags()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
+        <button onclick="location.replace('index.html')" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Back to Tasks</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="text-center text-xs text-gray-500 mt-12">
+    Crafted with care by <a href="https://www.linkedin.com/in/kiernan-dimeglio/" class="text-blue-600">Kiernan DiMeglio</a>
+  </footer>
+
+  <script>
     let tagSettings = {};
 
     document.addEventListener('DOMContentLoaded', async () => {
-      supabase = window.supabase.createClient(
-        'https://upyhxhtasgfdelxnpupb.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
-      );
-
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
         location.replace('login.html');
@@ -157,12 +115,12 @@
       container.innerHTML = '';
       Object.entries(tagSettings).forEach(([tag, color]) => {
         const row = document.createElement('div');
-        row.className = 'tag-row';
+        row.className = 'flex items-center gap-2';
 
         const tagInput = document.createElement('input');
         tagInput.type = 'text';
         tagInput.value = tag;
-        tagInput.className = 'tag-name';
+        tagInput.className = 'tag-name flex-1 px-2 py-1 border rounded';
 
         const colorInput = document.createElement('input');
         colorInput.type = 'color';
@@ -170,14 +128,13 @@
 
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Delete';
+        deleteBtn.className = 'px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600';
         deleteBtn.onclick = () => {
           delete tagSettings[tag];
           renderTags();
         };
 
-        row.appendChild(tagInput);
-        row.appendChild(colorInput);
-        row.appendChild(deleteBtn);
+        row.append(tagInput, colorInput, deleteBtn);
         container.appendChild(row);
       });
     }
@@ -189,7 +146,7 @@
 
     function saveTags() {
       const tagContainer = document.getElementById('tagContainer');
-      const rows = tagContainer.querySelectorAll('.tag-row');
+      const rows = tagContainer.querySelectorAll('div');
       const updatedTags = {};
       rows.forEach(row => {
         const name = row.querySelector('.tag-name').value.trim();
@@ -200,46 +157,5 @@
       alert('Tags saved!');
     }
   </script>
-
-<script>
-  const supabase = window.supabase?.createClient(
-    'https://upyhxhtasgfdelxnpupb.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
-  );
-
-  async function logout() {
-    await supabase.auth.signOut();
-    window.location.href = 'login.html';
-  }
-
-  supabase.auth.getUser().then(({ data }) => {
-    if (!data.user) location.replace('login.html');
-  });
-</script>
-
-</body>
-</html>
-
-  </main>
-  <footer class="mt-12 text-xs text-center text-gray-500">
-    Crafted with care by <a href="https://www.linkedin.com/in/kiernan-dimeglio/" target="_blank" class="text-blue-600">Kiernan DiMeglio</a>
-  </footer>
-
-<script>
-  const supabase = window.supabase?.createClient(
-    'https://upyhxhtasgfdelxnpupb.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
-  );
-
-  async function logout() {
-    await supabase.auth.signOut();
-    window.location.href = 'login.html';
-  }
-
-  supabase.auth.getUser().then(({ data }) => {
-    if (!data.user) location.replace('login.html');
-  });
-</script>
-
 </body>
 </html>
