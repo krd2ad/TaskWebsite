@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login</title>
   <link href="output.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase?.createClient(
+      'https://upyhxhtasgfdelxnpupb.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
+    );
+  </script>
 </head>
 <body class="bg-gray-100 flex justify-center items-center min-h-screen px-4">
   <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+    <h2 class="text-2xl font-bold mb-6 text-center" id="formTitle">Login</h2>
 
     <div id="messageBox" class="text-sm text-center mb-4 text-red-500"></div>
 
@@ -37,8 +44,7 @@
     </form>
 
     <div id="toggleText" class="text-center mt-4 text-sm">
-      Don’t have an account?
-      <a href="#" class="text-blue-600 underline">Register</a>
+      Don’t have an account? <a href="#" class="text-blue-600 underline">Register</a>
     </div>
 
     <footer class="text-xs text-center text-gray-500 mt-6">
@@ -49,9 +55,7 @@
     </footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    let supabase;
     let isRegistering = false;
 
     function togglePassword() {
@@ -61,7 +65,7 @@
 
     function toggleMode() {
       isRegistering = !isRegistering;
-      const formTitle = document.querySelector('h2');
+      const formTitle = document.getElementById('formTitle');
       const submitBtn = document.querySelector('button[type="submit"]');
       const toggleText = document.getElementById('toggleText');
 
@@ -73,11 +77,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      supabase = window.supabase.createClient(
-        'https://upyhxhtasgfdelxnpupb.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVweWh4aHRhc2dmZGVseG5wdXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwOTQ5OTUsImV4cCI6MjA2ODY3MDk5NX0.qfPqpUsA96mo5PuKH27SVPrXONfzNQaY-fDjQOiSYcY'
-      );
-
       const form = document.getElementById('authForm');
       const emailInput = document.getElementById('email');
       const passwordInput = document.getElementById('password');
@@ -86,7 +85,9 @@
 
       function showMessage(msg, success = false) {
         messageBox.textContent = msg;
-        messageBox.className = success ? 'text-sm text-center mb-4 text-green-500' : 'text-sm text-center mb-4 text-red-500';
+        messageBox.className = success
+          ? 'text-sm text-center mb-4 text-green-500'
+          : 'text-sm text-center mb-4 text-red-500';
       }
 
       toggleText.addEventListener('click', (e) => {
@@ -103,13 +104,8 @@
         const email = emailInput.value.trim();
         const password = passwordInput.value;
 
-        if (!email || !password) {
-          return showMessage('Enter email and password');
-        }
-
-        if (password.length < 6) {
-          return showMessage('Password must be at least 6 characters');
-        }
+        if (!email || !password) return showMessage('Enter email and password');
+        if (password.length < 6) return showMessage('Password must be at least 6 characters');
 
         try {
           let result;
@@ -123,12 +119,10 @@
             showMessage('Login successful. Redirecting...', true);
           }
 
-          setTimeout(() => {
-            location.replace('index.html');
-          }, 1000);
+          setTimeout(() => location.replace('index.html'), 1000);
         } catch (err) {
-          showMessage('Unexpected error. Please try again.');
           console.error(err);
+          showMessage('Unexpected error. Please try again.');
         }
       };
 
